@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',  # for Google OAuth 2.0
+
+    # Custom
+    'people',
 ]
 
 MIDDLEWARE = [
@@ -125,10 +128,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Asia/Kolkata'
+USE_L10N = True
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -148,11 +150,11 @@ SOCIALACCOUNT_PROVIDERS = {
         # For each OAuth based provider, either add a ``SocialApp``
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
-        'APP': {
-            'client_id': '60537759944-4mjhgk6igidjl9s3h3gnvqseuk91a6ae.apps.googleusercontent.com',
-            'secret': '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',
-            'key': ''
-        },
+        # 'APP': {
+        #     'client_id': '60537759944-4mjhgk6igidjl9s3h3gnvqseuk91a6ae.apps.googleusercontent.com',
+        #     'secret': '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',
+        #     'key': ''
+        # },
         'SCOPE': [
             'profile',
             'email',
@@ -166,3 +168,4 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
+SOCIALACCOUNT_STORE_TOKENS = True
