@@ -1,0 +1,22 @@
+{% load socialaccount %}
+<html>
+
+<head>
+    <title>Google Registration</title>
+</head>
+
+<body>
+    <!-- TODO: add a logout button -->
+    <h1>My Google Login Project</h1>
+    {% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }} !</p>
+    <!-- {{ user.socialaccount_set.all.0.date_joined}} -->
+    <!-- {{ user.socialaccount_set.all.0.extra_data.name }} -->
+    <!-- {{ user.socialaccount_set.all.0.last_login}} -->
+
+    {% else %}
+    <a href="{% provider_login_url 'google' %}">Login with Google</a>
+    {% endif %}
+</body>
+
+</html>
