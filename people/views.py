@@ -2,9 +2,25 @@
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
-# import urllib
-# import xml.etree.ElementTree as etree
 from django.http import HttpResponse
+from people.models import Contact
+from datetime import datetime
+
+
+def get_contacts(service):
+    # TODO: Get more than 2000 entries - recurse with next page token
+    return service.people().connections().list(
+        resourceName="people/me",
+        personFields='names,phoneNumbers,birthdays').execute()
+
+
+def is_json_key_present(json, key):
+    try:
+        json[key]
+    except KeyError:
+        return False
+
+    return True
 
 
 def get_email_google(request):
@@ -15,9 +31,7 @@ def get_email_google(request):
 
     # if request.user.userprofile.get_provider() != "google":
     a = SocialAccount.objects.get(user=user)
-    # print(a)
     b = SocialToken.objects.get(account=a)
-    # print(b)
     # access = b.token
     token = b.token
 
@@ -31,23 +45,34 @@ def get_email_google(request):
 
     service = build('people', 'v1', credentials=credentials)
 
-    results = service.people().connections().list(
-        resourceName="people/me",
-        personFields='names,phoneNumbers,birthdays').execute()
+    results = get_contacts(service)
     person_dict = {}
-    for per in results['connections']:
-        try:
-            name = per['names'][0]['displayName']
-            # As the response is an array
-            # we need to do some list comprehension
-            phoneNumbers = [x['value'] for x in per['phoneNumbers']]
-            person_dict[name] = phoneNumbers
-        except Exception:
-            name = per['names'][0]['displayName']
-            person_dict[name] = "No phone Number"
 
-    print(person_dict)
-    # TODO: send a parsed json with only birthdays
+    contacts = []
+    for per in results['connections']:
+        contact = Contact()
+        contact.user = user
+        contact.name = name = per['names'][0]['displayName']
+        # As the response is an array
+        # we need to do some list comprehension
+        # phoneNumbers = [x['value'] for x in per['phoneNumbers']]
+        if is_json_key_present(per, 'birthdays'):
+            birthdays = [x['date'] for x in per['birthdays']]
+            birthday = birthdays[0]  # TODO: Handle for multiple dates. find a case
+            if is_json_key_present(birthday, 'year'):
+                year = birthday['year']
+            else:
+                year = 1500
+            birthdate = datetime(year, birthday['month'], birthday['day'])
+            person_dict[name] = birthdate
+            contact.birthday = birthdate
+            contacts.append(contact)
+        else:
+            pass
+        # contacts.append(contact)
+
+    Contact.objects.bulk_update_or_create(contacts, ['birthday'], match_field=['user','name'])
+    # TOOD: send a better response
     return HttpResponse(person_dict, content_type='application/json')
 
     # return render(request, 'search/random_text_print.html', locals())

@@ -1,3 +1,6 @@
 from django.contrib import admin
+from people.models import Contact
 
-# Register your models here.
+
+# TODO: Show all fields for contact, also add filters
+admin.site.register(Contact)
