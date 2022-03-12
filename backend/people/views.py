@@ -72,7 +72,7 @@ def get_email_google(request):
         # contacts.append(contact)
 
     Contact.objects.bulk_update_or_create(contacts, ['birthday'], match_field=['user','name'])
-    # TOOD: send a better response
+    # TODO: send a better response
     return HttpResponse(person_dict, content_type='application/json')
 
     # return render(request, 'search/random_text_print.html', locals())
