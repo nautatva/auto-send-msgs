@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',  # for Google OAuth 2.0
 
+    'phonenumber_field',
     # Custom
     'people',
 ]
@@ -161,11 +162,13 @@ SOCIALACCOUNT_PROVIDERS = {
             'https://www.googleapis.com/auth/contacts.readonly',
             'https://www.googleapis.com/auth/contacts.other.readonly',
         ],
-        # 'AUTH_PARAMS': {
-        #     'access_type': 'online',  # Default
-        # }
+        'AUTH_PARAMS': {
+            'access_type': 'offline',
+        }
     }
 }
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_STORE_TOKENS = True
+
+DEFAULT_BIRTH_YEAR = 1500  # Only used if year is not provided
