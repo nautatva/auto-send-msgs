@@ -148,14 +148,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        # For each OAuth based provider, either add a ``SocialApp``
-        # (``socialaccount`` app) containing the required client
-        # credentials, or list them here:
-        # 'APP': {
-        #     'client_id': '60537759944-4mjhgk6igidjl9s3h3gnvqseuk91a6ae.apps.googleusercontent.com',
-        #     'secret': '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',
-        #     'key': ''
-        # },
         'SCOPE': [
             'profile',
             'email',
