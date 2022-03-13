@@ -51,42 +51,53 @@ def get_email_google(request):
     service = build('people', 'v1', credentials=credentials)
 
     results = get_contacts(service)
-    person_dict = {}
-
     contacts = []
+    serial = []
     for per in results:
         contact = Contact()
+        person_dict = {}
         contact.user = user
         if not is_json_key_present(per, 'names'):
             # Only email present for this contact
             # TODO: pick birthdays from this as well
+            # print(per)
             continue
         contact.name = name = per['names'][0]['displayName']
-        # As the response is an array
-        # we need to do some list comprehension
-        # phoneNumbers = [x['value'] for x in per['phoneNumbers']]
+
         if is_json_key_present(per, 'birthdays'):
             birthdays = [x['date'] for x in per['birthdays']]
-            birthday = birthdays[0]  # TODO: Handle for multiple dates. find a case
+            if len(birthdays) > 1:
+                # When can birthday be more than 1
+                # - When contact has google profile and date present in that
+                print("More than 1 birthdays found!!!!!!")
+                print(per)
+            birthday = birthdays[0]
             if is_json_key_present(birthday, 'year'):
                 year = birthday['year']
             else:
                 year = settings.DEFAULT_BIRTH_YEAR
             birthdate = datetime(year, birthday['month'], birthday['day'])
-            person_dict[name] = birthdate
             contact.birthday = birthdate
+
+            numbers = []
             if is_json_key_present(per, 'phoneNumbers'):
                 numbers = [x['canonicalForm'] for x in per['phoneNumbers'] if is_json_key_present(x, 'canonicalForm')]
                 number = numbers[0]  # TODO: Handle for multiple numbers
                 contact.number = PhoneNumber.from_string(number)
+
+            # TODO: Save email if no number present?
             contact.detail = per
             contacts.append(contact)
+
+            person_dict["name"] = name
+            person_dict["birthday"] = birthdate
+            person_dict["number"] = numbers
+            serial.append(person_dict)
         else:
             pass
         # contacts.append(contact)
 
-    Contact.objects.bulk_update_or_create(contacts, ['birthday'], match_field=['user','name'])
-    # TODO: send a better response
-    return HttpResponse(person_dict, content_type='application/json')
+    Contact.objects.bulk_update_or_create(contacts, update_fields=['birthday','number', 'detail'], match_field=['user','name'])
+    return HttpResponse(serial, content_type='application/json')
 
     # return render(request, 'search/random_text_print.html', locals())
