@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path(r'', views.get_email_google)
+    path(r'', views.save_birthdays_from_google)
 ]

@@ -30,7 +30,7 @@ def is_json_key_present(json, key):
     return True
 
 
-def get_email_google(request):
+def save_birthdays_from_google(request):
     # social = request.user.social_auth.get(provider='google-oauth2')
     user = request.user
 
@@ -41,6 +41,7 @@ def get_email_google(request):
     b = SocialToken.objects.get(account=a)
 
     app = SocialApp.objects.get(provider="google")
+    # TODO: Handle if refresh token is expired: redirect to login page to regenerate fresh token
     credentials = Credentials(
         token=b.token,
         refresh_token=b.token_secret,
@@ -99,5 +100,3 @@ def get_email_google(request):
 
     Contact.objects.bulk_update_or_create(contacts, update_fields=['birthday','number', 'detail'], match_field=['user','name'])
     return HttpResponse(serial, content_type='application/json')
-
-    # return render(request, 'search/random_text_print.html', locals())
