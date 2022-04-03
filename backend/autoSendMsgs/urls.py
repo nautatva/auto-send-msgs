@@ -22,5 +22,6 @@ urlpatterns = [
     path(r'', TemplateView.as_view(template_name='google.html')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('people', include('people.urls'))
+    path('people/', include('people.urls')),
+    path('message/', include('message.urls')),
 ]
