@@ -43,7 +43,7 @@ def get_contacts(user) -> list:
 
     for per in results:
         contact = Contact()
-        contact.user = user
+        contact.created_by = user
         if not is_json_key_present(per, 'names'):
             # Only email present for this contact
             # TODO: pick birthdays from this as well

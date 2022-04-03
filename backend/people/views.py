@@ -44,5 +44,5 @@ def get_contacts_from_google(request):
 
     for split in split_list:
         # TODO: Check if (bulk_update_or_create) is better, or (query, make a map and update new contacts with respective IDs)
-        Contact.objects.bulk_update_or_create(split, update_fields=['number', 'source', 'detail'], match_field=['user','name'])
+        Contact.objects.bulk_update_or_create(split, update_fields=['number', 'source', 'detail'], match_field=['created_by','name'])
     return HttpResponse(content_type='application/json')

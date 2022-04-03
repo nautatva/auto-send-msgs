@@ -4,23 +4,24 @@ from bulk_update_or_create import BulkUpdateOrCreateQuerySet
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import UniqueConstraint
 from django.db.models.functions import Lower
+from choices.time import Frequency
+from utils.django_utils import BaseModel
 
 
-class Contact(models.Model):
+class Contact(BaseModel):
     objects = BulkUpdateOrCreateQuerySet.as_manager()
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
 
     # TODO: Ideal max_length?
     # TODO First name, last name separate?
     name = models.CharField(max_length=150)
 
     number = PhoneNumberField()
+
     detail = models.TextField(default=settings.DEFAULT_CONTACT_DETAIL)
-    source = models.CharField(max_length=25, db_column="source", default=settings.MANUAL_SOURCE)
+    detail.hidden = True
+
+    source = models.CharField(max_length=25, default=settings.MANUAL_SOURCE, blank=True, editable=False)
+    source.readonly = True
 
     def __str__(self):
         return self.name
@@ -28,20 +29,21 @@ class Contact(models.Model):
     class Meta:
         constraints = [
             UniqueConstraint(
-                'user',
+                'created_by',
                 Lower('name'),
                 'number',
-                name='unique_user_name_number',
+                name='unique_created_by_name_number',
             ),
         ]
 
 
-class Event(models.Model):
+class Event(BaseModel):
     objects = BulkUpdateOrCreateQuerySet.as_manager()
 
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)  # TODO: Make a choice field with other input allowed
     date = models.DateField()
+    frequency = models.CharField(choices=Frequency.choices(), max_length=25, default=Frequency.ONCE)
 
     def __str__(self):
         return f"{self.contact} - {self.name}"

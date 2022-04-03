@@ -61,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middleware.who_did.WhodidMiddleware',
+    # 'middleware.permission_control_middleware.PermissionControlMiddleware'
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -169,3 +171,5 @@ DEFAULT_CONTACT_DETAIL = 'Manually made contact'
 MANUAL_SOURCE = 'Manual'
 
 PHONENUMBER_DEFAULT_REGION = 'IN'
+
+SCHEDULED_PROCESS_INTERVAL = 1  # TODO: Allow less than 1 day
