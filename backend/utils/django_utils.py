@@ -4,34 +4,40 @@ from django.db import models
 from django.db.models import Q
 
 
-class AdminWithUserData(admin.ModelAdmin):
+class BaseAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        # TODO: Filter queryset to allow only self-created objects
+        return super(BaseAdmin, self).get_queryset(request)
+
     def get_exclude(self, request, obj=None):
-        try:
-            hidden_fields = []
-            for f in obj._meta.fields:
-                try:
-                    if f.hidden:
-                        hidden_fields.append(f.name)
-                except AttributeError:
-                    continue
-            return hidden_fields
-        except Exception:
-            # if a new object is to be created the try clause will fail due to missing _meta.fields
-            return ""
+        custom_hidden_fields = ["created_by", "last_modified_by"]
+        hidden_fields = []
+        concrete_class_hidden_fields = super(BaseAdmin, self).get_exclude(request, obj)
+        if concrete_class_hidden_fields is None:
+            return custom_hidden_fields
+
+        for field in concrete_class_hidden_fields:
+            hidden_fields.append(field)
+
+        for field in custom_hidden_fields:
+            hidden_fields.append(field)
+
+        return hidden_fields
 
     def get_readonly_fields(self, request, obj=None):
-        readonly_fields = ["created_by", "last_modified_by"]
-        try:
-            for f in obj._meta.fields:
-                try:
-                    if f.readonly:
-                        readonly_fields.append(f.name)
-                except AttributeError:
-                    continue
-            return readonly_fields
-        except Exception:
-            # if a new object is to be created the try clause will fail due to missing _meta.fields
-            return readonly_fields
+        custom_readonly_fields = ["created_by", "last_modified_by"]
+        readonly_fields = []
+        concrete_class_readonly_fields = super(BaseAdmin, self).get_readonly_fields(request, obj)
+        if concrete_class_readonly_fields is None:
+            return custom_readonly_fields
+
+        for field in concrete_class_readonly_fields:
+            readonly_fields.append(field)
+
+        for field in custom_readonly_fields:
+            readonly_fields.append(field)
+
+        return readonly_fields
 
     # def get_changeform_initial_data(self, request):
     #     data = super(AdminWithUserData, self).get_changeform_initial_data(request)
@@ -53,9 +59,7 @@ class BaseModel(models.Model):
         related_name="%(app_label)s_%(class)s_modified_by",
         editable=False,
         null=True
-        # default=1
     )
-    # created_by.readonly = True
 
     class Meta:
         abstract = True

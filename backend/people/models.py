@@ -17,11 +17,9 @@ class Contact(BaseModel):
 
     number = PhoneNumberField()
 
-    detail = models.TextField(default=settings.DEFAULT_CONTACT_DETAIL)
-    detail.hidden = True
+    detail = models.TextField(default=settings.DEFAULT_CONTACT_DETAIL, editable=False)
 
     source = models.CharField(max_length=25, default=settings.MANUAL_SOURCE, blank=True, editable=False)
-    source.readonly = True
 
     def __str__(self):
         return self.name

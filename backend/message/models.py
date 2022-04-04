@@ -25,10 +25,8 @@ class ScheduledMessage(BaseModel):
     number = PhoneNumberField(blank=True)
     contact = models.ForeignKey(Contact, on_delete=models.SET_NULL, null=True, blank=True)
     reference_event = models.ForeignKey(Event, on_delete=models.SET_NULL, null=True, blank=True)
-    reference_event.readonly = True
 
     sent = models.BooleanField(blank=False, null=False, default=False)
-    sent.readonly = True
 
     def __str__(self):
         return f"{self.number}"
