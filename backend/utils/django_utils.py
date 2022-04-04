@@ -6,9 +6,9 @@ from utils.common_utils import merge_iterables
 
 
 class BaseAdmin(admin.ModelAdmin):
-    # def get_queryset(self, request):
-    #     # TODO: Filter queryset to allow only self-created objects
-    #     return super(BaseAdmin, self).get_queryset(request)
+    # TODO: Permission control to take in account if user is super-user
+    def get_queryset(self, request):
+        return super(BaseAdmin, self).get_queryset(request).filter(created_by=request.user)
 
     def get_exclude(self, request, obj=None):
         custom_hidden_fields = ["created_by", "last_modified_by"]
@@ -19,6 +19,14 @@ class BaseAdmin(admin.ModelAdmin):
         custom_readonly_fields = ["created_by", "last_modified_by"]
         concrete_class_readonly_fields = super(BaseAdmin, self).get_readonly_fields(request, obj)
         return merge_iterables(concrete_class_readonly_fields, custom_readonly_fields)
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        """
+            Filter the selections to created_by the user
+        """
+        field = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        field.queryset = field.queryset.filter(created_by=request.user)
+        return field
 
     # def get_changeform_initial_data(self, request):
     #     data = super(AdminWithUserData, self).get_changeform_initial_data(request)
