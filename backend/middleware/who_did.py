@@ -44,6 +44,6 @@ class WhodidMiddleware:
         :return:
         """
         if hasattr(instance, "last_modified_by_id"):
-            instance.modified_by = user
+            instance.last_modified_by = user
         if not getattr(instance, 'created_by_id', None):
             instance.created_by = user
